@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staj Defteri Takip</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        /* Google Font: Poppins - Şık ve Okunaklı Font */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f0f2f5;
+            /* Açık Gri Arka Plan */
+            color: #333;
+        }
+
+        .header-bg {
+            background-color: #1a73e8;
+            /* Mavi Tonu */
+            color: #ffffff;
+        }
+
+        .container-fluid {
+            min-height: 100vh;
+        }
+
+        #text-card {
+            border: none;
+            border-radius: 12px;
+            background-color: #ffffff;
+        }
+
+        #metin-basligi {
+            color: #ffffff;
+        }
+
+        #current-text {
+            white-space: pre-wrap;
+            /* Metni olduğu gibi (satır sonlarıyla) gösterir */
+            font-size: 1.15rem;
+            line-height: 1.8;
+        }
+
+        .btn-success {
+            background-color: #28a745;
+            border-color: #28a745;
+            transition: all 0.3s;
+        }
+
+        .btn-success:hover {
+            background-color: #1e7e34;
+            border-color: #1c7430;
+            transform: translateY(-2px);
+        }
+
+        .progress {
+            border-radius: 15px;
+        }
+
+        /* Telefonlar İçin Ekstra Düzenleme */
+        @media (max-width: 576px) {
+            .card-header {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            #toggle-done-btn {
+                width: 100%;
+                font-size: 1rem;
+            }
+
+            #prev-btn,
+            #next-btn {
+                width: 48%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container-fluid p-0">
+        <header class="text-center p-3 header-bg shadow-sm">
+            <h1 class="display-6 fw-bold">📝 Staj Defteri Takip Sistemi</h1>
+        </header>
+
+        <main class="row mx-0 g-0 justify-content-center">
+            <div class="col-12 col-md-10 col-lg-8 p-3 p-md-5">
+
+                <div id="text-card" class="card shadow-lg mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center header-bg">
+                        <span id="current-index-info" class="badge text-bg-secondary fs-6">Metin 1 / 10</span>
+                        <h2 id="metin-basligi" class="card-title h4 fw-bolder mb-0 text-center flex-grow-1"></h2>
+                        <span id="durum-gostergesi" class="badge bg-danger">Yazılmadı</span>
+                    </div>
+                    <div class="card-body p-4">
+                        <p id="current-text" class="card-text lead"></p>
+                    </div>
+                    <div class="card-footer d-flex justify-content-between p-3 bg-light">
+                        <button id="prev-btn" class="btn btn-outline-dark me-2" disabled>
+                            &larr; Önceki Metin
+                        </button>
+                        <button id="next-btn" class="btn btn-outline-dark ms-2" disabled>
+                            Sonraki Metin &rarr;
+                        </button>
+                    </div>
+                </div>
+
+                <div class="text-center mt-3">
+                    <button id="toggle-done-btn" class="btn btn-lg btn-success shadow-sm">
+                        ✅ Deftere Yazdım, Sonrakine Geç
+                    </button>
+                </div>
+
+                <div class="mt-5">
+                    <h3 class="h6 text-muted text-center">İlerleme Durumu</h3>
+                    <div class="progress" role="progressbar" aria-label="İlerleme" aria-valuenow="0" aria-valuemin="0"
+                        aria-valuemax="100" style="height: 30px;">
+                        <div id="progress-bar" class="progress-bar progress-bar-striped progress-bar-animated"
+                            style="width: 0%">0%</div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>// Tüm metinleriniz, başlık ve içerik olarak ayrılmıştır.
+        const METIN_LISTESI = [
+            {
+                baslik: "Sistem Kurulumu ve Bilgisayar Bakımı", icerik: `Bu hafta Mac bir bilgisayara dual boot şeklinde ikinci bir işletim sistemi kurmayı denedik. Bu süreçte disk bölümlendirme, önyükleme seçenekleri ve kurulum adımları hakkında temel bilgi edindim. Ardından bilgisayara teknik bakım ve temizlik yaptık. Cihazın içini güvenli şekilde açmayı, toz temizliği yapmayı ve işlemcinin üzerindeki eski termal macunu temizleyip yenisini uygulamayı öğrendim.
+
+Ayrıca bilgisayarlarda domain yapısını ve kullanıcı girişlerinin nasıl çalıştığını öğrendim. User (kullanıcı) ve Admin (yönetici) hesapları arasındaki yetki farklarını, yönetici hesabının sistem üzerinde daha geniş erişim sağladığını ve kullanıcı hesaplarının sınırlı izinlere sahip olduğunu kavradım.
+
+Bu çalışmalar, hem sistem kurulumu hem de temel bakım konusunda önemli deneyimler kazanmamı sağladı.` },
+
+            {
+                baslik: "Ağ ve Sunucu Sistemleri", icerik: `Muhasebe bölümünde kullanılan yazıcının kablosunu bulmak için önce dağıtım odasında, ardından sistem odasında kablo takibini gerçekleştirdik. Bu işlemde RJ45 kablo test cihazını (bili bili) kullanarak hattın hangi uçlara bağlı olduğunu tespit etmeyi öğrendim. Böylece ağ kablolarının izlenmesi ve arızaların bulunması konusunda pratik deneyim kazandım.
+
+Ayrıca bu çalışma sırasında server (sunucu) kavramını öğrendim. Bir sunucunun temel olarak ağdaki diğer bilgisayarlara hizmet sağladığını, dosya paylaşımı, yazıcı yönetimi, kullanıcı kontrolü gibi işlemleri merkezi olarak yönettiğini öğrendim.
+
+Bunun yanında firewall (güvenlik duvarı) hakkında bilgi edindim. Firewall’un iç ağı dış tehditlerden koruyan, yetkisiz erişimi engelleyen ve ağ trafiğini kontrol eden bir güvenlik sistemi olduğunu öğrendim.
+
+Bu görevler sayesinde ağ yapısı, sunucu işleyişi ve temel güvenlik unsurları konusunda önemli bilgiler edindim.` },
+
+            {
+                baslik: "Fiber Optik Kablo Bağlantısı", icerik: `Bu hafta fiber optik kablo bağlantı çalışmaları yaptık. Fiber hatların doğru uçlarını tespit edebilmek için lazer ışığı veren VFL (Visual Fault Locator) adlı cihazı kullandık. Bu cihaz sayesinde kablonun diğer ucuna ışık iletilerek hattın nerede sonlandığı kolayca görüldü. Böylece fiber kabloların hangi birimlere bağlı olduğunu belirledik.
+
+Belirlenen uçlar doğrultusunda gerekli fiber bağlantılarını gerçekleştirerek hattın doğru şekilde çalışmasını sağladık. Bu süreçte fiber kablonun yapısı, ışık iletim mantığı ve bağlantıların hassasiyet gerektirdiği konularında pratik deneyim kazandım.` },
+
+            {
+                baslik: "Sistem Kurulumu ve Akıllı Ev Düzenlemeleri", icerik: `Bu hafta bir bilgisayara format atarak işletim sistemini yeniden kurdum. Kurulum sonrası cihazın ihtiyaç duyduğu temel programları yükledim ve bilgisayarı kurum ağına dahil etmek için domain’e bağladım. Bu süreçte sürücü yükleme, sistem yapılandırma ve domain entegrasyonu hakkında pratik deneyim kazandım.
+
+Ayrıca daha önceden kurulmuş olan akıllı ev sistemi üzerinde de çalışma yaptık. Web sitesi üzerinden lamba kontrolü, klima açma-kapama ve alarm sistemlerine erişim sağlayan bu yapıda hem web arayüzünde hem de bağlantılarda çeşitli sorunlar vardı. Bu hataları tespit ederek gerekli düzenlemeleri yaptık ve sistemin doğru şekilde çalışmasını sağladık.
+
+Bu görevler sayesinde hem bilgisayar kurulum işlemlerini hem de akıllı ev otomasyonlarının çalışma mantığını daha iyi kavradım.` },
+
+            {
+                baslik: "Akıllı Ev Sistemi Web Arayüzü Düzenlemesi", icerik: `Bu hafta akıllı ev sistemi için kullanılan web sitesinde düzenlemeler yaptım. Sistem üzerinden lamba, klima ve alarm kontrolü yapılıyordu ancak arayüzde hem tasarımsal hem de işlevsel bazı sorunlar vardı. Web sitesini düzenleyerek daha işlevli, sade ve kullanıcı dostu bir hâle getirdim. Görsel düzenlemeler, buton yerleşimleri ve erişim yapısındaki hataları düzelterek sistemin daha stabil ve anlaşılır çalışmasını sağladım.
+
+Bu çalışma sayesinde hem web arayüz tasarımı hem de akıllı ev otomasyon sistemlerinin çalışma prensipleri konusunda önemli deneyim kazandım.` },
+
+            {
+                baslik: "Performans Sorunu ve Sistem Analizi", icerik: `Bu hafta kasma ve yavaşlama şikâyetiyle gelen bir bilgisayarı inceledik. İlk olarak sistemdeki gereksiz dosyaları ve kayıt defteri hatalarını tespit etmek için CCleaner uygulamasının nasıl kullanıldığını öğrendim. Programın temizlik, başlangıç uygulamalarını yönetme ve kayıt defteri onarma gibi özelliklerini uygulamalı olarak gördüm.
+
+Bilgisayarda Windows’un bazı özelliklerinin eksik olduğunu fark ettik ve bunun performans ile kullanım üzerinde nasıl etkiler oluşturabileceğini değerlendirdik. Ayrıca diskin sağlık durumunu kontrol etmek için Hard Disk Sentinel programını kullanmayı öğrendim. Bu uygulama sayesinde diskin sıcaklık değerlerini, sağlık oranını ve çalışma performansını analiz ettik.
+
+Bu çalışmalar, performans sorunlarının tespiti ve çözümü konusunda önemli pratik deneyimler kazanmamı sağladı.` },
+
+            {
+                baslik: "All-in-One Bilgisayar Bakımı ve SSD İşlemleri", icerik: `Bu hafta bilgisayar kasalarının monitörle tek bir gövdede birleşik olabileceğini (All-in-One sistemler) öğrendim. Bu yapıda çalışan bir bilgisayarın iç bakımını gerçekleştirdik. Cihazın arka kapağını açarak toz temizliği yaptık, donanım bileşenlerini kontrol ettik ve performansı artırmak için SSD takma işlemi gerçekleştirdik.
+
+Bilgisayarın eski hard diskinde bulunan verilerin kaybolmaması için, diski söküp bir harici SATA–USB dönüştürücü kablo ile bilgisayara bağladık. Bu sayede tüm dosyaları yeni takılan SSD’ye sorunsuz şekilde kopyaladık ve sistemin daha hızlı çalışmasını sağladık.
+
+Bu çalışmalar sayesinde All-in-One bilgisayarların yapısını, bakım süreçlerini ve SSD’ye veri aktarma yöntemlerini uygulamalı olarak öğrenmiş oldum.` },
+
+            {
+                baslik: "Televizyon Entegrasyonu ve Yansıtma Sorunu Çözümü", icerik: `Önceki günlerde kurmuş olduğumuz televizyonun stabil çalışmadığı yönünde bir geri bildirim aldık. Sorunun, bilgisayar açılmadan televizyon fişe takıldığında ekran yansıtmanın gerçekleşmemesi, ancak bilgisayar açıldıktan sonra televizyonun fişe takılması durumunda çalışması olduğu tespit edildi. Bu nedenle olay yerine giderek sistemi yerinde inceledik.
+
+Televizyon ile bilgisayar arasındaki bağlantı ayarlarını kontrol ettik ve gerekli entegrasyon işlemlerini yaptık. Bağlantı protokollerinin doğru sırada çalışmasını sağlayarak bilgisayarın televizyona sorunsuz şekilde görüntü aktarabilmesini mümkün hâle getirdik. Yapılan ayarlamalar sonrası televizyon stabil çalışır duruma geldi.
+
+Bu süreçte ekran yansıtma, HDMI iletişimi ve cihazlar arası bağlantı sorunlarının nasıl çözülebileceğini uygulamalı olarak öğrenmiş oldum.` },
+
+            { baslik: "Veri Yedekleme", icerik: `Bu hafta veri güvenliğinin önemi üzerine çalışmalar yaptım. Bilgilerin kaybolmasını önlemek ve daha güvenli şekilde saklanmasını sağlamak için düzenli yedekleme almanın ne kadar kritik olduğunu öğrendim. Dosyaların harici disk, bulut veya farklı bir sunucuya yedeklenmesi sayesinde olası sistem arızalarında veya kullanıcı hatalarında verilerin korunabileceğini gördüm. Bu süreç, veri güvenliği ve yedekleme yöntemleri konusunda önemli bir farkındalık kazanmamı sağladı.` },
+
+            {
+                baslik: "Şifreleme ve Güvenli Şifre Uygulaması Geliştirme", icerik: `Bu hafta kendi şifre uygulamamı geliştirdim. Uygulamada kayıt edilen tüm şifrelerin veritabanına şifrelenmiş (kriptolanmış) şekilde kaydedilmesini sağladım. Böylece veritabanına yetkisiz erişim olsa bile bu şifrelerin program olmadan okunamaz ve kullanılamaz hâlde olmasını amaçladım.
+
+Ayrıca uygulamaya giriş yapılabilmesi için özel bir kripto giriş şifresi oluşturdum. Bu ek güvenlik katmanı sayesinde programa sadece yetkili kişilerin erişebilmesi sağlanmış oldu. Bu çalışma sırasında hem şifreleme mantığını hem de temel güvenlik yöntemlerini uygulamalı olarak öğrenmiş oldum.` },
+        ];
+
+        let currentIndex = 0;
+        // localStorage'dan tamamlanmış metinlerin durumunu yükle veya yeni bir boş dizi oluştur
+        let doneStatus = JSON.parse(localStorage.getItem('metinDoneStatus')) || new Array(METIN_LISTESI.length).fill(false);
+
+        const metinBasligi = document.getElementById('metin-basligi');
+        const currentTextElement = document.getElementById('current-text');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const toggleDoneBtn = document.getElementById('toggle-done-btn');
+        const durumGostergesi = document.getElementById('durum-gostergesi');
+        const currentIndexInfo = document.getElementById('current-index-info');
+        const progressBar = document.getElementById('progress-bar');
+
+        // --- FONKSİYONLAR ---
+
+        function updateUI() {
+            const currentMetin = METIN_LISTESI[currentIndex];
+
+            // Metin İçeriğini Güncelle
+            metinBasligi.textContent = currentMetin.baslik;
+            currentTextElement.textContent = currentMetin.icerik;
+            currentIndexInfo.textContent = `Metin ${currentIndex + 1} / ${METIN_LISTESI.length}`;
+
+            // Buton Durumlarını Güncelle
+            prevBtn.disabled = currentIndex === 0;
+            nextBtn.disabled = currentIndex === METIN_LISTESI.length - 1;
+
+            // Tamamlanma Durumunu Güncelle
+            const isDone = doneStatus[currentIndex];
+            durumGostergesi.textContent = isDone ? "✅ Yazıldı" : "Yazılmadı";
+            durumGostergesi.classList.toggle('bg-success', isDone);
+            durumGostergesi.classList.toggle('bg-danger', !isDone);
+
+            toggleDoneBtn.textContent = isDone ? "❌ Yazılmadı Olarak İşaretle" : "✅ Deftere Yazdım, Sonrakine Geç";
+            toggleDoneBtn.classList.toggle('btn-success', !isDone);
+            toggleDoneBtn.classList.toggle('btn-warning', isDone);
+
+            // İlerleme Çubuğunu Güncelle
+            updateProgress();
+        }
+
+        function updateProgress() {
+            const totalMetin = METIN_LISTESI.length;
+            const completedCount = doneStatus.filter(status => status).length;
+            const percentage = Math.round((completedCount / totalMetin) * 100);
+
+            progressBar.style.width = `${percentage}%`;
+            progressBar.textContent = `${percentage}% Tamamlandı`;
+        }
+
+        function saveStatus() {
+            localStorage.setItem('metinDoneStatus', JSON.stringify(doneStatus));
+        }
+
+        // --- OLAY DİNLEYİCİLERİ ---
+
+        // Önceki Metne Geç
+        prevBtn.addEventListener('click', () => {
+            if (currentIndex > 0) {
+                currentIndex--;
+                updateUI();
+            }
+        });
+
+        // Sonraki Metne Geç
+        nextBtn.addEventListener('click', () => {
+            if (currentIndex < METIN_LISTESI.length - 1) {
+                currentIndex++;
+                updateUI();
+            }
+        });
+
+        // Durumu Değiştirme ve Otomatik İlerleme
+        toggleDoneBtn.addEventListener('click', () => {
+            const isDone = doneStatus[currentIndex];
+            doneStatus[currentIndex] = !isDone; // Durumu tersine çevir
+            saveStatus(); // Local Storage'a kaydet
+            updateUI(); // Arayüzü güncelle
+
+            // Eğer yazıldı olarak işaretlendiyse, otomatik olarak bir sonrakine geç
+            if (!isDone && currentIndex < METIN_LISTESI.length - 1) {
+                setTimeout(() => {
+                    currentIndex++;
+                    updateUI();
+                }, 300); // Küçük bir gecikme ile geçiş
+            }
+        });
+
+        // Uygulama Başladığında
+        updateUI();</script>
+</body>
+
+</html>
